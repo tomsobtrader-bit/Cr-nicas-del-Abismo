@@ -1,0 +1,55 @@
+/* ═══════════════════════════════════════════════════════
+   variables.css
+   Tokens de diseño globales: colores, fuentes, z-index.
+   Todo el proyecto lee desde aquí.
+═══════════════════════════════════════════════════════ */
+
+@import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&family=Crimson+Text:ital,wght@0,400;0,600;1,400&display=swap');
+
+:root {
+    /* ── Fondos ── */
+    --bg:           #080810;
+    --bg2:          #0f0f1a;
+    --bg3:          #181825;
+
+    /* ── Bordes ── */
+    --border:       #252535;
+    --border-glow:  #3a2a5a;
+
+    /* ── Paleta de color ── */
+    --gold:         #c9a84c;
+    --gold-dark:    #6a4e1a;
+    --red:          #c0392b;
+    --red-bright:   #e74c3c;
+    --green:        #27ae60;
+    --blue:         #2980b9;
+    --purple:       #8e44ad;
+
+    /* ── Texto ── */
+    --text:         #e8e0d0;
+    --text-dim:     #666;
+
+    /* ── Estados interactivos de celdas ── */
+    --selected:      #f39c12;
+    --attackable:    #e74c3c;
+    --healable:      #27ae60;
+    --placeable:     #3498db;
+    --spell-target:  #9b59b6;
+    --sacrifice:     #e74c3c;
+    --guardian-target: #e67e22;
+
+    /* ── Fuentes ── */
+    --font-title:  'Cinzel', serif;
+    --font-body:   'Crimson Text', Georgia, serif;
+}
+
+/* Reset base */
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+html, body {
+    width: 100%; height: 100%;
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--font-body);
+    overflow: hidden;
+}
