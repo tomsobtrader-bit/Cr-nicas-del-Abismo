@@ -1,0 +1,137 @@
+/* ═══════════════════════════════════════════════════════
+   cards.css
+   Cartas en la mano del jugador: contenedor, imagen,
+   cuerpo, estadísticas y estados (seleccionada,
+   inasequible, hechizo).
+═══════════════════════════════════════════════════════ */
+
+/* ── Contenedor de mano ───────────────────────────── */
+.hand-section {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+    overflow: hidden;
+    margin-top: 2px;
+}
+
+.hand-label {
+    font-family: var(--font-title);
+    font-size: 0.55rem;
+    color: var(--text-dim);
+    letter-spacing: 0.1em;
+    margin-bottom: 3px;
+    flex-shrink: 0;
+}
+
+.hand {
+    display: flex;
+    gap: 5px;
+    overflow-x: auto;
+    padding-bottom: 4px;
+    flex: 1;
+    align-items: flex-start;
+    justify-content: center;
+}
+.hand::-webkit-scrollbar        { height: 3px; }
+.hand::-webkit-scrollbar-thumb  { background: var(--border-glow); }
+
+/* ── Carta individual ─────────────────────────────── */
+.hand-card {
+    width: 200px;
+    min-width: 180px;
+    height: 300px;
+    border: 1px solid var(--border);
+    background: var(--bg3);
+    display: flex;
+    flex-direction: column;
+    cursor: pointer;
+    transition: all 0.15s;
+    position: relative;
+    flex-shrink: 0;
+    overflow: hidden;
+}
+
+/* ── Imagen de carta ──────────────────────────────── */
+.card-img-wrap {
+    width: 100%; height: 300px;
+    overflow: hidden;
+    flex-shrink: 0;
+    position: relative;
+}
+.card-img-wrap img {
+    width: 100%; height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+.card-img-placeholder {
+    width: 100%; height: 80px;
+    background: linear-gradient(135deg, #1a0a2a, #0a0a18);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.7rem;
+    opacity: 0.5;
+    flex-shrink: 0;
+}
+
+/* ── Cuerpo de carta ──────────────────────────────── */
+.card-body {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 4px 4px 3px;
+    background: linear-gradient(180deg, var(--bg3), #0d0d18);
+}
+
+.card-name {
+    font-family: var(--font-title);
+    font-size: 0.54rem; font-weight: 700;
+    text-align: center; line-height: 1.25;
+    color: var(--text);
+    margin-bottom: 2px;
+}
+
+.card-type {
+    font-size: 0.5rem;
+    color: var(--text-dim);
+    letter-spacing: 0.03em;
+    text-transform: uppercase;
+    margin-bottom: auto;
+}
+
+.card-stats {
+    display: flex;
+    gap: 8px;
+    font-size: 0.85rem;
+    margin-top: 3px;
+}
+.card-stats span:first-child { color: #e67e22; font-weight: 700; }
+.card-stats span:last-child  { color: #e74c3c; font-weight: 700; }
+
+.card-spell-icon { font-size: 1.4rem; margin-top: auto; opacity: 0.8; }
+
+/* ── Estados de carta ─────────────────────────────── */
+.card-playable     { border-color: rgba(41,128,185,0.5); }
+.card-playable:hover {
+    transform: translateY(-14px);
+    border-color: var(--gold);
+    box-shadow: 0 14px 30px rgba(0,0,0,0.8);
+}
+
+.card-unaffordable { opacity: 0.38; cursor: not-allowed; }
+
+.card-selected {
+    border-color: var(--gold) !important;
+    box-shadow: 0 0 22px rgba(201,168,76,0.55) !important;
+    transform: translateY(-16px) !important;
+}
+
+.card-spell { border-color: rgba(155,89,182,0.5) !important; }
+.card-spell.card-playable:hover { border-color: #9b59b6 !important; }
+.card-spell.card-selected {
+    border-color: #9b59b6 !important;
+    box-shadow: 0 0 18px rgba(155,89,182,0.5) !important;
+}

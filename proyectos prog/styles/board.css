@@ -1,0 +1,206 @@
+/* ═══════════════════════════════════════════════════════
+   board.css
+   Tablero de combate: filas, celdas, estados interactivos,
+   animaciones de ataque / daño / muerte / invocación,
+   y elementos visuales de las tropas dentro de cada celda.
+═══════════════════════════════════════════════════════ */
+
+/* ── Contenedores del tablero ─────────────────────── */
+.battlefield {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    flex-shrink: 0;
+}
+
+.board-row {
+    display: flex;
+    align-items: center;
+    gap: 3px;
+}
+
+.row-label {
+    font-family: var(--font-title);
+    font-size: 0.48rem;
+    color: var(--text-dim);
+    letter-spacing: 0.06em;
+    width: 32px;
+    text-align: right;
+    flex-shrink: 0;
+}
+
+/* ── Celda base ───────────────────────────────────── */
+.cell {
+    flex: 1;
+    height: 112px;
+    border: 1px solid var(--border);
+    background: var(--bg2);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    cursor: default;
+    transition: all 0.12s;
+    position: relative;
+    overflow: hidden;
+    user-select: none;
+}
+.cell-filled { cursor: pointer; }
+.cell-empty  { opacity: 0.32; }
+
+/* ── Celdas del jugador ───────────────────────────── */
+.cell-player.cell-filled {
+    border-color: rgba(41,128,185,0.4);
+    background: linear-gradient(180deg, #0c1828 0%, #080f1a 100%);
+}
+.cell-player.cell-filled:hover {
+    border-color: var(--blue);
+    box-shadow: inset 0 0 14px rgba(41,128,185,0.15);
+}
+
+/* ── Celdas del enemigo ───────────────────────────── */
+.cell-enemy.cell-filled {
+    border-color: rgba(192,57,43,0.35);
+    background: linear-gradient(180deg, #200c0c 0%, #140707 100%);
+}
+.cell-enemy.cell-filled:hover { border-color: var(--red); }
+
+/* ── Celda seleccionada por el enemigo (animación IA) */
+.cell-enemy-selecting {
+    border-color: #ffb347 !important;
+    box-shadow: 0 0 18px rgba(255,179,71,0.55) !important;
+    animation: enemy-selecting 0.4s ease-out !important;
+}
+
+/* ── Estados interactivos ─────────────────────────── */
+.cell-selected      { border-color: var(--selected)    !important; box-shadow: 0 0 18px rgba(243,156,18,0.4)  !important; }
+.cell-attackable    { border-color: var(--attackable)  !important; box-shadow: 0 0 14px rgba(231,76,60,0.35)  !important; animation: attackable-pulse 0.8s infinite alternate; cursor: crosshair !important; }
+.cell-healable      { border-color: var(--healable)    !important; box-shadow: 0 0 14px rgba(39,174,96,0.4)   !important; cursor: pointer !important; }
+.cell-placeable     { border-color: var(--placeable)   !important; box-shadow: 0 0 14px rgba(52,152,219,0.35) !important; cursor: cell !important; opacity: 0.9 !important; animation: placeable-pulse 1s infinite alternate; }
+.cell-spell-target  { border-color: var(--spell-target) !important; box-shadow: 0 0 14px rgba(155,89,182,0.4) !important; cursor: pointer !important; }
+.cell-sacrifice     { border-color: #e74c3c !important; box-shadow: 0 0 14px rgba(231,76,60,0.4)  !important; cursor: pointer !important; animation: sacrifice-pulse 0.6s infinite alternate; }
+.cell-sacrifice-enemy { border-color: #8e44ad !important; box-shadow: 0 0 14px rgba(142,68,173,0.4) !important; cursor: pointer !important; animation: sacrifice-pulse 0.6s infinite alternate; }
+.cell-guardian-target {
+    border-color: var(--guardian-target) !important;
+    box-shadow: 0 0 18px rgba(230,126,34,0.5) !important;
+    cursor: crosshair !important;
+    animation: guardian-pulse 0.7s infinite alternate;
+}
+
+/* ── Animaciones de celda ─────────────────────────── */
+.cell-anim-attack { animation: anim-attack 0.35s ease-out !important; }
+.cell-anim-hit    { animation: anim-hit    0.4s  ease-out !important; }
+.cell-anim-death  { animation: anim-death  0.5s  ease-out forwards !important; }
+.cell-anim-summon { animation: anim-summon 0.4s  ease-out !important; }
+
+@keyframes anim-attack {
+    0%   { transform: scale(1); }
+    40%  { transform: scale(1.12) translateY(-4px); box-shadow: 0 0 20px rgba(243,156,18,0.7) !important; }
+    100% { transform: scale(1); }
+}
+@keyframes anim-hit {
+    0%   { filter: brightness(1); }
+    30%  { filter: brightness(2.5) saturate(0.2); transform: scale(0.95); }
+    100% { filter: brightness(1); transform: scale(1); }
+}
+@keyframes anim-death {
+    0%   { opacity: 1; transform: scale(1); filter: brightness(1); }
+    50%  { opacity: 0.6; transform: scale(1.1); filter: brightness(2) saturate(0); }
+    100% { opacity: 0; transform: scale(0.7) rotate(8deg); filter: brightness(0); }
+}
+@keyframes anim-summon {
+    0%   { opacity: 0; transform: scale(0.6) translateY(10px); }
+    70%  { transform: scale(1.05) translateY(-2px); }
+    100% { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+@keyframes enemy-selecting {
+    0%   { box-shadow: 0 0 4px rgba(255,179,71,0.2); }
+    50%  { box-shadow: 0 0 24px rgba(255,179,71,0.7); }
+    100% { box-shadow: 0 0 18px rgba(255,179,71,0.5); }
+}
+@keyframes attackable-pulse { from { box-shadow: 0 0 8px rgba(231,76,60,0.2); } to { box-shadow: 0 0 22px rgba(231,76,60,0.55); } }
+@keyframes placeable-pulse  { from { box-shadow: 0 0 8px rgba(52,152,219,0.2); } to { box-shadow: 0 0 22px rgba(52,152,219,0.5); } }
+@keyframes sacrifice-pulse  { from { opacity: 0.7; } to { opacity: 1; } }
+@keyframes guardian-pulse   { from { box-shadow: 0 0 8px rgba(230,126,34,0.3); } to { box-shadow: 0 0 24px rgba(230,126,34,0.7); } }
+
+/* ── Imagen de tropa ──────────────────────────────── */
+.troop-img {
+    position: absolute; inset: 0;
+    width: 100%; height: 100%;
+    object-fit: cover;
+    opacity: 0.45;
+    pointer-events: none;
+}
+
+/* ── Overlay de info sobre la tropa ───────────────── */
+.troop-overlay {
+    position: relative; z-index: 1;
+    display: flex; flex-direction: column;
+    align-items: center;
+    width: 100%;
+    padding: 2px 3px;
+}
+
+.troop-name {
+    font-family: var(--font-title);
+    font-size: 0.54rem; font-weight: 700;
+    letter-spacing: 0.02em;
+    text-align: center; line-height: 1.2;
+    color: #fff;
+    text-shadow: 0 1px 4px rgba(0,0,0,0.9), 0 0 8px rgba(0,0,0,0.8);
+    padding: 0 2px;
+}
+
+.troop-stats {
+    display: flex;
+    gap: 7px;
+    font-size: 0.95rem;
+    margin-top: 4px;
+}
+
+.atk { color: #f39c12; font-weight: 700; text-shadow: 0 0 6px rgba(0,0,0,0.9); }
+.hp  { color: #e74c3c; font-weight: 700; text-shadow: 0 0 6px rgba(0,0,0,0.9); }
+.hp-crit { color: #ff4444; animation: pulse 0.5s infinite; }
+
+/* ── Contador de carga ────────────────────────────── */
+.charge-counter {
+    font-family: var(--font-title);
+    font-size: 0.6rem; font-weight: 700;
+    color: #f1c40f;
+    background: rgba(0,0,0,0.75);
+    border: 1px solid rgba(241,196,15,0.4);
+    border-radius: 3px;
+    padding: 1px 5px;
+    margin-top: 3px;
+    text-shadow: 0 0 6px rgba(241,196,15,0.8);
+    letter-spacing: 0.04em;
+}
+
+/* ── Tags de estado de tropa ──────────────────────── */
+.troop-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 2px;
+    justify-content: center;
+    margin-top: 3px;
+}
+
+.tag        { font-size: 0.6rem; padding: 0 2px; border-radius: 2px; line-height: 1.4; }
+.tag-fatigue  { color: #aaa; }
+.tag-stun     { color: #f1c40f; filter: drop-shadow(0 0 3px #f1c40f); animation: stun-pulse 0.6s infinite alternate; }
+.tag-poison   { color: #2ecc71; }
+.tag-burn     { color: #e67e22; }
+.tag-curse    { color: #9b59b6; }
+.tag-mark     { color: #e74c3c; }
+.tag-used     { color: #555; }
+.tag-attacked { color: #555; font-size: 0.55rem; opacity: 0.5; }
+
+@keyframes stun-pulse {
+    from { opacity: 0.7; filter: drop-shadow(0 0 2px #f1c40f); }
+    to   { opacity: 1;   filter: drop-shadow(0 0 6px #f1c40f); }
+}
+
+/* ── Placeholder de celda vacía ───────────────────── */
+.cell-placeholder { color: var(--border); font-size: 1rem; }
+.placeable-hint   { color: var(--placeable); font-size: 1.4rem; opacity: 0.7; }
