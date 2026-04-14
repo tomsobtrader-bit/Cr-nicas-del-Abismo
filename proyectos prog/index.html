@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Crónicas del Abismo</title>
+
+<link rel="stylesheet" href="styles/variables.css">
+<link rel="stylesheet" href="styles/layout.css">
+<link rel="stylesheet" href="styles/hud.css">
+<link rel="stylesheet" href="styles/board.css">
+<link rel="stylesheet" href="styles/cards.css">
+<link rel="stylesheet" href="styles/modals.css">
+<link rel="stylesheet" href="styles/rarity.css">
+<link rel="stylesheet" href="styles/hand-collapse.css">
+
+<style>
+/* ── Run bar ── */
+#run-bar {
+    position: fixed; top: 0; left: 0; right: 0; height: 30px;
+    background: linear-gradient(90deg, rgba(8,11,20,0.98), rgba(22,26,46,0.98));
+    border-bottom: 1px solid var(--border-glow);
+    display: flex; align-items: center; padding: 0 14px; gap: 10px; z-index: 100;
+}
+.run-title {
+    font-family: var(--font-title); font-size: 0.55rem; letter-spacing: 0.18em;
+    color: var(--gold); text-shadow: 0 0 12px var(--gold-glow); white-space: nowrap;
+}
+#run-level-badge { font-family: var(--font-title); font-size: 0.6rem; color: var(--text-mid); }
+#run-level-badge span { color: var(--gold); text-shadow: 0 0 8px var(--gold-glow); }
+#btn-open-map {
+    font-family: var(--font-title); font-size: 0.58rem; letter-spacing: 0.1em;
+    background: rgba(60,30,90,0.4); color: rgba(160,120,210,0.9);
+    border: 1px solid rgba(80,50,120,0.6); padding: 3px 12px;
+    cursor: pointer; transition: all 0.18s; white-space: nowrap; margin-left: auto;
+}
+#btn-open-map:hover { background: rgba(80,40,120,0.6); border-color: rgba(140,80,200,0.8); color: #c0a0f0; }
+
+/* ── Overlay del mapa del mundo ── */
+#world-map-overlay {
+    display: none;
+    position: fixed; inset: 0; z-index: 300;
+    background: rgba(2,1,8,0.96);
+    align-items: stretch; justify-content: stretch;
+}
+#world-map-overlay.visible { display: flex; }
+
+/* El contenedor del mapa ocupa todo */
+#world-map-container {
+    flex: 1;
+    position: relative;
+}
+
+/* Botón de cerrar el mapa (dentro del overlay) */
+#btn-close-map {
+    position: absolute;
+    top: 12px; right: 16px;
+    z-index: 10;
+    font-family: var(--font-title); font-size: 0.6rem; letter-spacing: 0.1em;
+    background: rgba(20,10,40,0.9); color: rgba(200,180,240,0.7);
+    border: 1px solid rgba(120,80,180,0.5); padding: 5px 14px;
+    cursor: pointer; transition: all 0.18s;
+}
+#btn-close-map:hover { border-color: rgba(180,120,240,0.8); color: #c0a0f0; }
+
+/* ── Área de juego (combate) ── */
+#app {
+    display: none; /* se muestra cuando empieza un combate */
+    width: 100vw; height: 100vh;
+    padding-top: 30px;
+    overflow: hidden;
+    position: relative; z-index: 1;
+}
+
+/* ── Pantalla de inicio ── */
+#start-screen {
+    position: fixed; inset: 0;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    gap: 28px;
+    background: radial-gradient(ellipse 80% 60% at 50% 50%, #1a0a2e 0%, #080b14 70%);
+    z-index: 400; overflow: hidden;
+}
+#start-screen::before {
+    content: '';
+    position: absolute; top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    width: 800px; height: 800px;
+    background: conic-gradient(
+        from 0deg, transparent 0deg, rgba(240,200,74,0.04) 10deg, transparent 20deg,
+        rgba(240,200,74,0.04) 30deg, transparent 40deg, rgba(240,200,74,0.04) 50deg,
+        transparent 60deg, rgba(240,200,74,0.04) 70deg, transparent 80deg,
+        rgba(240,200,74,0.04) 90deg, transparent 360deg
+    );
+    animation: rotate-rays 30s linear infinite; pointer-events: none;
+}
+@keyframes rotate-rays { to { transform: translate(-50%,-50%) rotate(360deg); } }
+
+#start-screen h1 {
+    font-family: var(--font-title); font-size: clamp(2.2rem,5vw,4rem); font-weight: 900;
+    letter-spacing: 0.18em; color: var(--gold);
+    text-shadow: 0 0 40px rgba(240,200,74,0.6), 0 4px 20px rgba(0,0,0,0.8);
+    animation: title-breathe 3s ease-in-out infinite alternate; position: relative; z-index: 1;
+}
+@keyframes title-breathe {
+    from { text-shadow: 0 0 30px rgba(240,200,74,0.5); }
+    to   { text-shadow: 0 0 60px rgba(240,200,74,0.8), 0 0 120px rgba(240,200,74,0.3); }
+}
+#start-screen p {
+    color: var(--text-mid); font-family: var(--font-body); font-size: 1.1rem;
+    font-style: italic; letter-spacing: 0.1em; position: relative; z-index: 1;
+}
+.btn-start {
+    font-family: var(--font-title); font-size: 1rem; letter-spacing: 0.15em;
+    background: linear-gradient(135deg, rgba(60,20,90,0.9), rgba(30,10,50,0.9));
+    color: var(--gold); border: 1px solid var(--gold-dark); padding: 18px 60px;
+    cursor: pointer; transition: all 0.25s cubic-bezier(0.4,0,0.2,1);
+    position: relative; z-index: 1; overflow: hidden;
+}
+.btn-start:hover {
+    background: linear-gradient(135deg, rgba(80,30,120,0.95), rgba(50,15,80,0.95));
+    border-color: var(--gold); box-shadow: 0 0 40px rgba(240,200,74,0.35);
+    transform: translateY(-2px);
+}
+
+/* ── Control de volumen ── */
+#audio-controls {
+    position: fixed; bottom: 10px; right: 12px; z-index: 500;
+    display: flex; align-items: center; gap: 8px;
+    background: rgba(8,11,20,0.85); border: 1px solid var(--border);
+    padding: 5px 10px; border-radius: 3px; backdrop-filter: blur(4px);
+    transition: opacity 0.3s; opacity: 0.4;
+}
+#audio-controls:hover { opacity: 1; }
+#audio-controls label {
+    font-family: var(--font-title); font-size: 0.48rem; color: var(--text-dim);
+    letter-spacing: 0.1em; white-space: nowrap;
+}
+#audio-controls input[type=range] { width: 64px; height: 3px; cursor: pointer; accent-color: var(--gold); }
+#btn-mute { font-size: 0.9rem; background: none; border: none; cursor: pointer; padding: 0 2px; }
+</style>
+</head>
+<body>
+
+<canvas id="bg-canvas"></canvas>
+
+<!-- BARRA SUPERIOR -->
+<div id="run-bar">
+    <div class="run-title">CRÓNICAS DEL ABISMO</div>
+    <div id="run-level-badge">Nodo — <span id="run-level-num">—</span></div>
+    <button id="btn-open-map">🗺️ Ver Mapa</button>
+</div>
+
+<!-- MAPA DEL MUNDO (overlay full screen) -->
+<div id="world-map-overlay">
+    <div id="world-map-container"></div>
+    <button id="btn-close-map">✕ Cerrar Mapa</button>
+</div>
+
+<!-- PANTALLA DE INICIO -->
+<div id="start-screen">
+    <h1>Crónicas del Abismo</h1>
+    <p>Roguelike de cartas estratégico</p>
+    <button class="btn-start" id="start">⚔ Comenzar</button>
+</div>
+
+<!-- ÁREA DE COMBATE -->
+<div id="app"></div>
+
+<!-- CONTROL DE VOLUMEN -->
+<div id="audio-controls">
+    <button id="btn-mute" title="Silenciar/activar">🔊</button>
+    <label>MÚS</label>
+    <input type="range" id="vol-music" min="0" max="100" value="45">
+    <label>SFX</label>
+    <input type="range" id="vol-sfx" min="0" max="100" value="70">
+</div>
+
+<script type="module">
+    import { Game }           from "./game.js"
+    import { audio }          from "./Systems/audiosystem.js"
+    import { IntroAnimation } from "./intro-animation.js"
+
+    const game = new Game()
+    window.game = game
+
+    // ── Funciones de UI ──────────────────────────────────────────────────────
+    function showMap() {
+        document.getElementById("world-map-overlay").classList.add("visible")
+    }
+    function hideMap() {
+        document.getElementById("world-map-overlay").classList.remove("visible")
+    }
+
+    function updateRunBar(nodeName) {
+        const el = document.getElementById("run-level-num")
+        if (el) el.textContent = nodeName || "—"
+    }
+
+    window._updateRunBar = updateRunBar
+
+    // ── Botones del mapa ─────────────────────────────────────────────────────
+    document.getElementById("btn-open-map").onclick  = showMap
+    document.getElementById("btn-close-map").onclick = hideMap
+
+    document.getElementById("world-map-overlay").onclick = (e) => {
+        if (e.target === document.getElementById("world-map-overlay")) hideMap()
+    }
+
+    // ── Botón de inicio ──────────────────────────────────────────────────────
+    document.getElementById("start").onclick = () => {
+        // 1. Ocultar pantalla de inicio
+        document.getElementById("start-screen").style.display = "none"
+
+        // 2. Inicializar el mapa del mundo (en memoria, no visible aún)
+        game.initWorldMap("world-map-container")
+
+        // Cuando el jugador entra a un nodo desde el mapa:
+        if (game.worldMap) {
+            const originalOnClick = game.worldMap.onNodeClick
+            game.worldMap.onNodeClick = (nodeId, zoneId, node) => {
+                hideMap()
+                updateRunBar(node?.name || nodeId)
+                if (originalOnClick) originalOnClick(nodeId, zoneId, node)
+            }
+        }
+
+        // 3. Lanzar la animación de intro con las 5 cartas iniciales
+        const intro = new IntroAnimation(game)
+        intro.play(() => {
+            // 4. Al terminar la intro (al clickear "Comenzar Run"), mostrar el mapa
+            showMap()
+            audio.playLobbyMusic()
+        })
+    }
+
+    // ── Controles de volumen ─────────────────────────────────────────────────
+    let muted = false
+
+    document.getElementById("btn-mute").onclick = () => {
+        muted = !muted
+        audio.setMusicVolume(muted ? 0 : document.getElementById("vol-music").value / 100)
+        audio.setSfxVolume(  muted ? 0 : document.getElementById("vol-sfx").value   / 100)
+        document.getElementById("btn-mute").textContent = muted ? "🔇" : "🔊"
+    }
+    document.getElementById("vol-music").oninput = (e) => {
+        if (!muted) audio.setMusicVolume(e.target.value / 100)
+    }
+    document.getElementById("vol-sfx").oninput = (e) => {
+        if (!muted) audio.setSfxVolume(e.target.value / 100)
+    }
+</script>
+
+</body>
+</html>

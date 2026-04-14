@@ -1,0 +1,128 @@
+/* ═══════════════════════════════════════════════════════════════════════════
+   hand-collapse.css — Colapso suave de la mano con CSS puro
+═══════════════════════════════════════════════════════════════════════════ */
+
+/* ── center-panel: columna flex, el battlefield-area crece ── */
+.center-panel {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    overflow: hidden;
+    padding: 3px 7px;
+    gap: 2px;
+}
+
+/* ── El área de battlefields ocupa TODO el espacio sobrante ── */
+.battlefield-area {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    flex: 1;
+    min-height: 0;
+    justify-content: stretch;
+    transition: flex-grow 0.45s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* ── Los dos battlefields (enemigo y jugador) se reparten el espacio ── */
+.battlefield-area .battlefield {
+    flex: 1;
+    min-height: 0;
+}
+
+/* ── Las filas del tablero crecen dentro de cada battlefield ── */
+.battlefield-area .board-row {
+    flex: 1;
+    min-height: 0;
+}
+
+/* ── Las celdas respetan la transición de altura ── */
+.battlefield-area .cell {
+    transition:
+        min-height  0.45s cubic-bezier(0.4, 0, 0.2, 1),
+        border-color 0.15s,
+        box-shadow   0.15s,
+        transform    0.12s;
+}
+
+/* ── Wrapper colapsable ── */
+.player-zone-collapse {
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+}
+
+/* La barra de vida/energía del jugador NUNCA colapsa */
+.player-zone-collapse .player-bar {
+    flex-shrink: 0;
+    transition: opacity 0.3s ease;
+}
+
+/* ── La sección de mano: colapsada por defecto, se expande con hover ── */
+.player-zone-collapse .hand-section {
+    max-height: 36px;
+    opacity: 0.35;
+    overflow: hidden;
+    transition:
+        max-height 0.45s cubic-bezier(0.4, 0, 0.2, 1),
+        opacity    0.35s ease;
+    pointer-events: none;
+    transform-origin: bottom center;
+}
+
+/* ── Al hacer hover sobre el wrapper: expandir la mano ── */
+.player-zone-collapse:hover .hand-section {
+    max-height: 380px;
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.player-zone-collapse:not(:hover) .player-bar {
+    opacity: 0.88;
+}
+.player-zone-collapse:hover .player-bar {
+    opacity: 1;
+}
+
+/* ── Hint visual ── */
+.hand-collapse-hint {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    font-family: var(--font-title);
+    font-size: 0.48rem;
+    letter-spacing: 0.16em;
+    color: rgba(160, 130, 200, 0.0);
+    padding: 3px 0 2px;
+    flex-shrink: 0;
+    transition: color 0.4s ease, opacity 0.4s ease;
+    pointer-events: none;
+    user-select: none;
+}
+
+.player-zone-collapse:not(:hover) .hand-collapse-hint {
+    color: rgba(160, 130, 200, 0.45);
+}
+
+.player-zone-collapse .hand-label {
+    transition: opacity 0.3s ease;
+}
+.player-zone-collapse:not(:hover) .hand-label {
+    opacity: 0.4;
+}
+
+/* ── Las cartas en mano: efecto de aparición desde abajo ── */
+.player-zone-collapse:hover .hand-card {
+    animation: hand-card-appear 0.3s ease forwards;
+}
+
+@keyframes hand-card-appear {
+    from {
+        opacity: 0.4;
+        transform: translateY(8px) scaleY(0.97);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) scaleY(1);
+    }
+}
